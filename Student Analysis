@@ -1,0 +1,64 @@
+/*
+Identify students enrolled in the highest number of courses.
+What does this suggest about their academic engagement?
+*/
+
+select top 10
+s.studentid,
+s.firstname,
+s.lastname,
+count(e.courseid) as no_of_course
+from Students as s
+join Enrollments as e
+on s.StudentID = e.StudentID
+group by s.StudentID,
+		 s.FirstName,
+		 s.LastName
+order by no_of_course desc;
+
+/*
+Find students with consistently high grades (A or B).
+Can these students be considered for merit-based scholarships?
+*/
+
+select distinct
+s.firstname,
+s.lastname
+from Students as s
+join Enrollments as e
+on s.StudentID = e.StudentID
+where s.StudentID not in
+						(select
+						studentid
+						from Enrollments
+						where Grade in ('C','D','E','F'));
+
+/*
+Determine the average grade per student across all courses. 
+How can this information guide academic counseling?
+*/
+
+with cte_grade as (
+select
+s.StudentID,
+concat(s.firstname,' ',s.lastname) as fullname,
+cast(
+case 
+	when grade ='A' then 4
+	when grade ='B' then 3
+	when grade ='C' then 2
+	when grade ='D' then 1
+	when grade ='F' then 0
+end as float
+)as gradepoint
+from Students as s
+join Enrollments as e
+on s.StudentID = e.StudentID
+)
+select
+StudentID,
+fullname,
+round(avg(gradepoint),2) as avg_grade
+from cte_grade
+group by StudentID,fullname
+order by avg_grade desc;
