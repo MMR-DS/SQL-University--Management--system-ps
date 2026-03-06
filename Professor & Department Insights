@@ -3,21 +3,6 @@ Identify professors teaching the most courses.
 Does this indicate higher workload or popularity?
 */
 =========================================================================
-SELECT 
-    p.ProfessorName,
-    COUNT(e.EnrollmentID) AS StudentsHandled
-FROM Professors p
-JOIN ProfessorDepartments pd
-    ON p.ProfessorID = pd.ProfessorID
-JOIN Departments d
-    ON pd.DepartmentID = d.DepartmentID
-JOIN Courses c
-    ON d.DepartmentName = p.Department   -- logical mapping
-JOIN Enrollments e
-    ON c.CourseID = e.CourseID
-GROUP BY p.ProfessorName
-ORDER BY StudentsHandled DESC;
-
 (SELECT
     CourseName,
     CASE
@@ -133,3 +118,4 @@ on c.courseid = e.courseid
 group by p.ProfessorName,
          c.CourseName
 order by avg_gradepoint desc ;
+=========================================================================
