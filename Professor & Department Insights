@@ -1,0 +1,135 @@
+/*
+Identify professors teaching the most courses.
+Does this indicate higher workload or popularity?
+*/
+=========================================================================
+SELECT 
+    p.ProfessorName,
+    COUNT(e.EnrollmentID) AS StudentsHandled
+FROM Professors p
+JOIN ProfessorDepartments pd
+    ON p.ProfessorID = pd.ProfessorID
+JOIN Departments d
+    ON pd.DepartmentID = d.DepartmentID
+JOIN Courses c
+    ON d.DepartmentName = p.Department   -- logical mapping
+JOIN Enrollments e
+    ON c.CourseID = e.CourseID
+GROUP BY p.ProfessorName
+ORDER BY StudentsHandled DESC;
+
+(SELECT
+    CourseName,
+    CASE
+        WHEN CourseName IN (
+            'Data Structures','Algorithms','Database Management Systems',
+            'Operating Systems','Computer Networks',
+            'Machine Learning','Artificial Intelligence',
+            'Data Analytics','Cloud Computing','Cyber Security'
+        ) THEN 1
+
+        WHEN CourseName IN (
+            'Discrete Mathematics','Linear Algebra','Calculus',
+            'Probability & Statistics','Numerical Methods','Game Theory'
+        ) THEN 2
+
+        WHEN CourseName IN (
+            'Quantum Physics','Classical Mechanics'
+        ) THEN 3
+
+        WHEN CourseName IN (
+            'Organic Chemistry','Inorganic Chemistry','Biochemistry'
+        ) THEN 4
+
+        WHEN CourseName IN (
+            'Genetics','Microbiology','Environmental Biology'
+        ) THEN 5
+
+        WHEN CourseName IN (
+            'Macroeconomics','Microeconomics','Corporate Finance'
+        ) THEN 6
+
+        WHEN CourseName IN (
+            'Financial Accounting','Marketing Management',
+            'Human Resource Management','Entrepreneurship','Business Ethics'
+        ) THEN 7
+
+        WHEN CourseName IN (
+            'English Literature','Creative Writing','Philosophy'
+        ) THEN 8
+
+        WHEN CourseName IN (
+            'Indian History','World History'
+        ) THEN 9
+
+        WHEN CourseName IN (
+            'Cognitive Psychology','Social Psychology','Research Methodology'
+        ) THEN 10
+    END AS Department
+FROM Courses);
+
+select 
+p.professorName,
+count(CourseName) as no_of_courses
+from professors as p
+left join ProfessorDepartments as pd
+on p.professorid = pd.professorid
+left join cd as cde
+on cde.Department = pd.departmentid
+group by ProfessorName
+order by no_of_courses desc;
+=========================================================================
+/*
+Find departments with the highest number of active professors.
+How does this compare with student enrollment per department?
+*/
+=========================================================================
+select 
+cde.Department,
+d.DepartmentName,
+count(distinct p.professorName) as professor_count,
+count(studentid) as total_enrollments
+from cd as cde
+left join ProfessorDepartments as pd
+on cde.Department = pd.DepartmentID
+left join Professors as p
+on p.professorid = pd.professorid 
+left join Departments as d
+on d.DepartmentID =cde.department
+left join Courses as c
+on cde.courseName = c.CourseName
+left join Enrollments as e
+on c.courseid = e.courseid
+group by cde.Department,
+         d.DepartmentName
+order by cde.Department;
+=========================================================================
+/*
+Determine which professors’ courses have the highest average grades. 
+Does this correlate with teaching effectiveness or grading leniency?
+*/
+=========================================================================
+select
+p.professorname,
+c.coursename,
+round(avg(cast(
+case 
+	when grade ='A' then 4
+	when grade ='B' then 3
+	when grade ='C' then 2
+	when grade ='D' then 1
+	when grade ='F' then 0
+end as float
+)),2)as avg_gradepoint
+from Professors as p
+join ProfessorDepartments as pd
+on p.professorid = pd.professorid 
+join cd as cde
+on cde.Department = pd.DepartmentID
+join Courses as c
+on cde.courseName = c.CourseName
+join Enrollments as e
+on c.courseid = e.courseid
+group by p.ProfessorName,
+         c.CourseName
+order by avg_gradepoint desc ;
