@@ -1,0 +1,142 @@
+/*
+Compare the enrollment growth of different departments over the last three years.
+(instead all four semster)
+Which department is expanding fastest?*/
+=========================================================================
+
+with cte_gradepoint as (
+        select 
+        e.courseid,
+        e.studentid,
+        c.coursename,
+        e.grade,
+        cast(case 
+	        when e.grade ='A' then 4
+	        when e.grade ='B' then 3
+	        when e.grade ='C' then 2
+	        when e.grade ='D' then 1
+	        when e.grade ='F' then 0
+        end as float) as gradepoint,
+        year(e.EnrollmentDate) as years,
+        case
+        when month(e.enrollmentdate) between 1 and 6 then 'Summer'
+        else 'Winter'
+        end as semster
+        from enrollments as e
+        join courses as c
+        on c.courseid = e.CourseID)
+,
+cte_c_d_p as (select 
+cde.CourseName,
+cde.department as departmentid,
+pd.professorid,
+d.DepartmentName
+from cd as cde
+join ProfessorDepartments as pd
+on pd.departmentid = cde.department
+join departments as d
+on pd.departmentid = d.DepartmentID
+)
+select 
+cdp.departmentname,
+cg.years,
+cg.semster,
+count(cg.studentid) as total_enrollment_per_deoartment
+from cte_gradepoint as cg
+join cte_c_d_p as cdp
+on cg.CourseName = cdp.CourseName
+group by DepartmentName,years,semster
+order by DepartmentName,years desc ,semster desc;
+========================================================================
+/*
+Predict which students are at risk of failing based on their grades and number of courses taken.
+*/
+=========================================================================
+with cte_risk as (
+        select 
+        e.courseid,
+        e.studentid,
+        concat(s.FirstName,' ',s.LastName) as fullname,
+        c.coursename,
+        e.grade,
+        year(e.EnrollmentDate) as years,
+        case
+        when month(e.enrollmentdate) between 1 and 6 then 'Summer'
+        else 'Winter'
+        end as semster,
+        count(*) over(partition by e.studentid) as Total_course_count
+        from enrollments as e
+        join courses as c
+        on c.courseid = e.CourseID
+        join students as s
+        on s.StudentID =e.StudentID
+        ),
+cte_fail as (
+        select 
+        e.studentid,
+        concat(s.FirstName,' ',s.LastName) as fullname,
+        e.grade,
+        count(*) over(partition by e.studentid) as total_failed
+        from Enrollments as e
+        join Students as s
+        on s.StudentID=e.StudentID
+        where e.grade = 'F'
+        )
+select 
+cf.studentid,
+cf.fullname,
+avg(cf.total_failed) as total_fail,
+avg(cr.total_course_count) as total_course
+from cte_fail as cf
+join cte_risk as cr 
+on cf.StudentID=cr.StudentID
+group by cf.StudentID,cf.fullname
+order by total_fail desc ,total_course desc;
+=========================================================================
+/*
+Analyze whether students enrolled in higher-credit courses tend to achieve better grades
+*/
+=========================================================================
+with cte_high as (
+select
+1 as link,
+round(avg(cast(case 
+	        when e.grade ='A' then 4
+	        when e.grade ='B' then 3
+	        when e.grade ='C' then 2
+	        when e.grade ='D' then 1
+	        when e.grade ='F' then 0
+        end as float)),2)as higher_credit_avg_grade
+from Enrollments as e
+join students as s
+on s.studentid = e.studentid
+join courses as c
+on c.courseid = e.courseid
+where credits = (select top 1
+                credits from Courses
+                order by Credits desc))
+,cte_others_avg as (
+select
+1 as link ,
+round(avg(cast(case 
+	        when e.grade ='A' then 4
+	        when e.grade ='B' then 3
+	        when e.grade ='C' then 2
+	        when e.grade ='D' then 1
+	        when e.grade ='F' then 0
+        end as float)),2)as other_credit_avg_grade
+from Enrollments as e
+join students as s
+on s.studentid = e.studentid
+join courses as c
+on c.courseid = e.courseid
+where credits <> (select top 1
+                credits from Courses
+                order by Credits desc))
+select
+ch.higher_credit_avg_grade,
+co.other_credit_avg_grade
+from cte_high as ch
+join cte_others_avg as co
+on co.link= ch.link;
+=========================================================================
