@@ -1,0 +1,110 @@
+Case Study: University Management System
+Introduction
+Universities manage a wide range of information — from students and professors to courses and departments. Maintaining and analyzing this data efficiently is essential for academic planning, student success tracking, and faculty management.
+ A well-designed University Management System database ensures smooth operations by handling enrollments, course assignments, grades, and departmental structures.
+This case study focuses on designing a relational database schema for a university and performing MySQL-based data analysis to extract meaningful insights related to student performance, faculty efficiency, and departmental productivity.
+________________________________________
+Database Schema
+Students
+●	StudentID (INT, Primary Key)
+
+●	FirstName (VARCHAR)
+
+●	LastName (VARCHAR)
+
+●	Email (VARCHAR)
+
+●	EnrollmentDate (DATE)
+
+Courses
+●	CourseID (INT, Primary Key)
+
+●	CourseName (VARCHAR)
+
+●	Credits (INT)
+
+Professors
+●	ProfessorID (INT, Primary Key)
+
+●	ProfessorName (VARCHAR)
+
+●	Department (VARCHAR)
+
+Enrollments
+●	EnrollmentID (INT, Primary Key)
+
+●	StudentID (INT, Foreign Key referencing Students.StudentID)
+
+●	CourseID (INT, Foreign Key referencing Courses.CourseID)
+
+●	EnrollmentDate (DATE)
+
+●	Grade (CHAR)
+
+Departments
+●	DepartmentID (INT, Primary Key)
+
+●	DepartmentName (VARCHAR)
+
+●	Building (VARCHAR)
+
+ProfessorDepartments
+●	ProfessorID (INT, Foreign Key referencing Professors.ProfessorID)
+
+●	DepartmentID (INT, Foreign Key referencing Departments.DepartmentID)
+
+________________________________________
+Objective
+The university aims to use data analytics to improve academic performance and operational efficiency. The objectives of this system are to:
+●	Track student enrollments and academic performance.
+
+●	Monitor course popularity and department workloads.
+
+●	Evaluate professor performance and course management.
+
+●	Analyze grade distributions and academic trends.
+
+●	Optimize resource allocation across departments.
+
+Through SQL-based data analysis, administrators can make informed decisions to enhance student success and academic planning.
+________________________________________
+Problem Statement
+Student Analysis
+1.	Identify students enrolled in the highest number of courses. What does this suggest about their academic engagement?
+
+2.	Find students with consistently high grades (A or B). Can these students be considered for merit-based scholarships?
+
+3.	Determine the average grade per student across all courses. How can this information guide academic counseling?
+
+Course & Enrollment Analysis
+1.	Identify the top 5 most enrolled courses. What makes these courses popular among students?
+
+2.	Find courses with low enrollment numbers. Should these courses be promoted or discontinued?
+
+3.	Calculate the average number of credits students are taking per semester. Is the workload balanced?
+
+Professor & Department Insights
+1.	Identify professors teaching the most courses. Does this indicate higher workload or popularity?
+
+2.	Find departments with the highest number of active professors. How does this compare with student enrollment per department?
+
+3.	Determine which professors’ courses have the highest average grades. Does this correlate with teaching effectiveness or grading leniency?
+
+Academic Performance & Trends
+1.	Calculate the average grade distribution across all departments. Which department shows the best academic performance?
+
+2.	Identify the most difficult courses (lowest average grades). Should the curriculum or teaching methods be reviewed?
+
+3.	Analyze grade trends over time (e.g., improvement or decline per semester). What could be influencing these changes?
+
+Comparative & Predictive Analysis
+1.	Compare the enrollment growth of different departments over the last three years. Which department is expanding fastest?
+
+2.	Predict which students are at risk of failing based on their grades and number of courses taken.
+
+3.	Analyze whether students enrolled in higher-credit courses tend to achieve better grades.
+
+________________________________________
+Tech Stack
+●	Database: MySQL/SSMS 21
+
